@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import AppError from "../../utils/appError";
 import { enrolledCourseServices } from "./enrolledCourse.service";
 
-// -------------------- get a single student --------------------
+// -------------------- create an enrolled course --------------------
 const createEnrolledCourse = catchAsync(async (req, res) => {
   const { userId } = req.user;
 
@@ -21,10 +21,13 @@ const createEnrolledCourse = catchAsync(async (req, res) => {
   });
 });
 
-// -------------------- get a single student --------------------
+// -------------------- update enrolled course marks --------------------
 const updateEnrolledCourseMarks = catchAsync(async (req, res) => {
   const { userId } = req.user;
-  const result = await enrolledCourseServices.updateEnrolledCourseMarksIntoDB(userId, req.body);
+  const result = await enrolledCourseServices.updateEnrolledCourseMarksIntoDB(
+    userId,
+    req.body
+  );
 
   sendResponse(res, {
     success: true,
@@ -34,7 +37,24 @@ const updateEnrolledCourseMarks = catchAsync(async (req, res) => {
   });
 });
 
+// -------------------- update enrolled course marks --------------------
+const getMyEnrolledCourses = catchAsync(async (req, res) => {
+  const { userId } = req.user;
+  const result = await enrolledCourseServices.getMyEnrolledCoursesFromDB(
+    userId,
+    req.query
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "My enrolled courses are retrieved successfully",
+    data: result,
+  });
+});
+
 export const enrolledCourseControllers = {
   createEnrolledCourse,
   updateEnrolledCourseMarks,
+  getMyEnrolledCourses,
 };

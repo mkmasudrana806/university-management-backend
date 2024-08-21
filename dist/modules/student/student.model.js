@@ -90,7 +90,7 @@ const studentSchema = new mongoose_1.Schema({
     permanentAddress: { type: String, required: true, trim: true },
     guardian: { type: guardianSchema, required: true },
     localGuardian: { type: localGuardianSchema, required: true },
-    profileImg: { type: String },
+    profileImg: { type: String, default: "" },
     admissionSemester: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "Semester",

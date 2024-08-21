@@ -23,6 +23,7 @@ const academicDepartment_model_1 = require("../academicDepartment/academicDepart
 const course_model_1 = require("../courses/course.model");
 const faculty_model_1 = __importDefault(require("../faculty/faculty.model"));
 const offeredCourse_utils_1 = require("./offeredCourse.utils");
+const student_model_1 = __importDefault(require("../student/student.model"));
 // ---------- create a new orffered course ----------
 const createOfferedCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { semesterRegistration, academicFaculty, academicDepartment, course, faculty, section, days, startTime, endTime, } = payload;
@@ -89,6 +90,173 @@ const getAllOfferedCoursesFromDB = () => __awaiter(void 0, void 0, void 0, funct
     const result = yield offeredCourse_model_1.OfferedCourse.find({});
     return result;
 });
+// ---------- get my offered coruses ----------
+const getMyOfferedCoursesFromDB = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    // find student
+    const currentStudent = yield student_model_1.default.findOne({ id: userId });
+    if (!currentStudent) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "Student not found");
+    }
+    // find current ongoing semester
+    const currentOngoingSemester = yield semesterRegistration_model_1.SemesterRegistration.findOne({
+        status: "ONGOING",
+    });
+    // pagination setup
+    const page = Number(query === null || query === void 0 ? void 0 : query.page) || 1;
+    const limit = Number(query === null || query === void 0 ? void 0 : query.limit) || 10;
+    const skip = (page - 1) * limit;
+    // find current semester specific department offered courses
+    const result = yield offeredCourse_model_1.OfferedCourse.aggregate([
+        {
+            $match: {
+                semesterRegistration: currentOngoingSemester === null || currentOngoingSemester === void 0 ? void 0 : currentOngoingSemester._id,
+                academicDepartment: currentStudent.academicDepartment,
+            },
+        },
+        // lookup into courses
+        {
+            $lookup: {
+                from: "courses",
+                localField: "course",
+                foreignField: "_id",
+                as: "course",
+            },
+        },
+        {
+            $unwind: "$course",
+        },
+        // lookup into enrolledcourses to find enrolledCourses
+        {
+            $lookup: {
+                from: "enrolledcourses",
+                let: {
+                    currentOngoingSemester: currentOngoingSemester === null || currentOngoingSemester === void 0 ? void 0 : currentOngoingSemester._id,
+                    currentStudentId: currentStudent._id,
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    {
+                                        $eq: ["$semesterRegistration", "$$currentOngoingSemester"],
+                                    },
+                                    {
+                                        $eq: ["$student", "$$currentStudentId"],
+                                    },
+                                    {
+                                        $eq: ["$isEnrolled", true],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
+                as: "enrolledCourses",
+            },
+        },
+        // lookup into enrolledcourses to find completedCourses
+        {
+            $lookup: {
+                from: "enrolledcourses",
+                let: {
+                    currentStudentId: currentStudent._id,
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    {
+                                        $eq: ["$student", "$$currentStudentId"],
+                                    },
+                                    {
+                                        $eq: ["$isCompleted", true],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
+                as: "completedCourses",
+            },
+        },
+        // add field: completed courss ids
+        {
+            $addFields: {
+                completedCourseIds: {
+                    $map: {
+                        input: "$completedCourses",
+                        as: "completed",
+                        in: "$$completed.course",
+                    },
+                },
+            },
+        },
+        // add fields isAlreadyEnrolled and isPreRequisiteFulFilled
+        {
+            $addFields: {
+                isPreRequisiteFulFilled: {
+                    $or: [
+                        {
+                            $eq: ["$course.preRequisiteCourses", []],
+                        },
+                        {
+                            $setIsSubset: [
+                                "$course.preRequisiteCourses.course",
+                                "$completedCourseIds",
+                            ],
+                        },
+                    ],
+                },
+                isAlreadyEnrolled: {
+                    $in: [
+                        "$course._id",
+                        {
+                            $map: {
+                                input: "$enrolledCourses", // on which want to run loop
+                                as: "enroll", // callback variable
+                                in: "$$enroll.course",
+                            },
+                        },
+                    ],
+                },
+            },
+        },
+        // match
+        {
+            $match: {
+                isAlreadyEnrolled: false,
+                isPreRequisiteFulFilled: true,
+            },
+        },
+        // project
+        {
+            $project: {
+                enrolledCourses: 0,
+                completedCourses: 0,
+            },
+        },
+        // skip
+        {
+            $skip: skip,
+        },
+        {
+            $limit: limit,
+        },
+    ]);
+    const total = result.length ? skip : 0 + result.length;
+    const totalPage = Math.ceil(total / limit);
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+            totalPage,
+        },
+        result,
+    };
+});
 // ---------- get an offered course ----------
 const getOfferedCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield offeredCourse_model_1.OfferedCourse.findById(id);
@@ -149,4 +317,5 @@ exports.offeredCourseServices = {
     getOfferedCourseFromDB,
     deleteOfferedCourseFromDB,
     updateOfferedCourseIntoDB,
+    getMyOfferedCoursesFromDB,
 };

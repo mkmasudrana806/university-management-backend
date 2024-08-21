@@ -2,6 +2,8 @@ import express from "express";
 import validateRequest from "../../middlewares/validateRequestData";
 import { offeredCourseControllers } from "./offeredCourse.controller";
 import { offeredCourseValidations } from "./offeredCourse.validation";
+import auth from "../../middlewares/auth";
+import { USER_ROLE } from "../user/user.constant";
 
 const router = express.Router();
 
@@ -15,6 +17,13 @@ router.post(
 
 // get all offered courses
 router.get("/", offeredCourseControllers.getAllOfferedCourses);
+
+// get all offered courses
+router.get(
+  "/my-offered-courses",
+  auth(USER_ROLE.student),
+  offeredCourseControllers.getMyOfferedCourses
+);
 
 // get an offered course
 router.get("/:id", offeredCourseControllers.getOfferedCourse);

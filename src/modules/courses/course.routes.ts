@@ -43,4 +43,10 @@ router.delete(
   courseControllers.removeFacultiesFromCourse
 );
 
+// get faculties for a course
+router.get(
+  "/:courseId/get-faculties",
+  courseControllers.getFacultiesWithCourse
+);
+
 export const courseRoutes = router;

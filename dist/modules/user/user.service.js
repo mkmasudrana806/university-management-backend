@@ -91,12 +91,14 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
     payload.academicFaculty = academicDepartment.academicFaculty;
     // set generated id
     userData.id = yield user_utils_1.userUtils.generateStudentId(admissionSemester);
-    // send image to cloudinary
-    const imageName = `${userData.id}-${payload.name.firstName}`;
-    const path = file === null || file === void 0 ? void 0 : file.path;
-    const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
-    // set profileImg
-    payload.profileImg = profileImage.secure_url;
+    if (file) {
+        // send image to cloudinary
+        const imageName = `${userData.id}-${payload.name.firstName}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
+        // set profileImg
+        payload.profileImg = profileImage.secure_url;
+    }
     // create a new user: (transaction-1)
     const newUser = yield user_model_1.User.create(userData);
     if (!newUser) {
@@ -164,12 +166,14 @@ const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 
     userData.email = payload.email;
     // set generated id
     userData.id = yield user_utils_1.userUtils.generateFacultyId();
-    // send image to cloudinary
-    const imageName = `${userData.id}-${payload.name.firstName}`;
-    const path = file === null || file === void 0 ? void 0 : file.path;
-    const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
-    // set profileImg
-    payload.profileImg = profileImage.secure_url;
+    if (file) {
+        // send image to cloudinary
+        const imageName = `${userData.id}-${payload.name.firstName}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
+        // set profileImg
+        payload.profileImg = profileImage.secure_url;
+    }
     // create a new user: (transaction-1)
     const newUser = yield user_model_1.User.create(userData);
     if (!newUser) {
@@ -236,12 +240,14 @@ const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0,
     userData.email = payload.email;
     // set generated id
     userData.id = yield user_utils_1.userUtils.generateAdminId();
-    // send image to cloudinary
-    const imageName = `${userData.id}-${payload.name.firstName}`;
-    const path = file === null || file === void 0 ? void 0 : file.path;
-    const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
-    // set profileImg
-    payload.profileImg = profileImage.secure_url;
+    if (file) {
+        // send image to cloudinary
+        const imageName = `${userData.id}-${payload.name.firstName}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
+        // set profileImg
+        payload.profileImg = profileImage.secure_url;
+    }
     // create a new user: (transaction-1)
     const newUser = yield user_model_1.User.create(userData);
     if (!newUser) {

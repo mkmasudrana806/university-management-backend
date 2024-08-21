@@ -9,6 +9,8 @@ import { SemesterRegistration } from "../semesterRegistration/semesterRegistrati
 import Faculty from "../faculty/faculty.model";
 import makeFlattenedObject from "../../utils/makeFlattenedObject";
 import calculateGradePoints from "./enrolledCourse.utils";
+import QueryBuilder from "../../builders/QueryBuilder";
+import { populate } from "dotenv";
 
 /**
  * ---------------------- enrolled a course into db--------------------
@@ -267,8 +269,29 @@ const updateEnrolledCourseMarksIntoDB = async (
   return result;
 };
 
+// ---------------------- get my enrolled courses --------------------
+const getMyEnrolledCoursesFromDB = async (
+  userId: string,
+  query: Record<string, unknown>
+) => {
+  const student = await Student.findOne({ id: userId });
+  if (!student) {
+    throw new AppError(httpStatus.NOT_FOUND, "Student not found");
+  }
+
+  const enrolledCourseQuery = new QueryBuilder(
+    OfferedCourse.find({ student: student._id }).populate(
+      "semesterRegistration academicDepartment academicFaculty offeredCourse course faculty"
+    ),
+    query
+  );
+
+  const result = await enrolledCourseQuery.modelQuery;
+  return result;
+};
 // export enrolled courses services
 export const enrolledCourseServices = {
   createEnrolledCourseIntoDB,
   updateEnrolledCourseMarksIntoDB,
+  getMyEnrolledCoursesFromDB,
 };

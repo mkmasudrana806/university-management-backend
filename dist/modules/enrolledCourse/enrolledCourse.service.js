@@ -22,6 +22,7 @@ const semesterRegistration_model_1 = require("../semesterRegistration/semesterRe
 const faculty_model_1 = __importDefault(require("../faculty/faculty.model"));
 const makeFlattenedObject_1 = __importDefault(require("../../utils/makeFlattenedObject"));
 const enrolledCourse_utils_1 = __importDefault(require("./enrolledCourse.utils"));
+const QueryBuilder_1 = __importDefault(require("../../builders/QueryBuilder"));
 /**
  * ---------------------- enrolled a course into db--------------------
  *
@@ -199,8 +200,19 @@ const updateEnrolledCourseMarksIntoDB = (userId, payload) => __awaiter(void 0, v
     const result = yield enrolledCourse_model_1.EnrolledCourse.findByIdAndUpdate(isFacultyBelongToCourse._id, flattenedData, { new: true, runValidators: true });
     return result;
 });
+// ---------------------- get my enrolled courses --------------------
+const getMyEnrolledCoursesFromDB = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const student = yield student_model_1.default.findOne({ id: userId });
+    if (!student) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "Student not found");
+    }
+    const enrolledCourseQuery = new QueryBuilder_1.default(offeredCourse_model_1.OfferedCourse.find({ student: student._id }).populate("semesterRegistration academicDepartment academicFaculty offeredCourse course faculty"), query);
+    const result = yield enrolledCourseQuery.modelQuery;
+    return result;
+});
 // export enrolled courses services
 exports.enrolledCourseServices = {
     createEnrolledCourseIntoDB,
     updateEnrolledCourseMarksIntoDB,
+    getMyEnrolledCoursesFromDB,
 };

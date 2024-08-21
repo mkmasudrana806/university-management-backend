@@ -18,11 +18,18 @@ router.post(
   enrolledCourseControllers.createEnrolledCourse
 );
 
-//
+// update enrolled course marks
 router.post(
   "/update-enrolled-course-marks",
   auth(USER_ROLE.faculty),
   validateRequest(enrolledCourseValidations.updateEnrolledCourseMarksSchema),
   enrolledCourseControllers.updateEnrolledCourseMarks
+);
+
+// get my enrolled courses
+router.get(
+  "/my-enrolled-courses",
+  auth(USER_ROLE.student),
+  enrolledCourseControllers.getMyEnrolledCourses
 );
 export const enrolledCourseRoutes = router;

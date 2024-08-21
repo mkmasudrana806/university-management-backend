@@ -18,7 +18,7 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 // RequestHandler: manage type of req, res, next etc
-// create a student
+// -------------------- create a student --------------------
 const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // pass data to service
     const { password, student: studentData } = req.body;
@@ -31,7 +31,7 @@ const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
-// create a faculty
+// -------------------- create a faculty --------------------
 const createFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // pass data to service
     const { password, faculty: facultyData } = req.body;
@@ -44,11 +44,9 @@ const createFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
-// create an admin
+// -------------------- create an admin --------------------
 const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // pass data to service
     const { password, admin: adminData } = req.body;
-    // save data to database
     const result = yield user_service_1.UserServices.createAdminIntoDB(req.file, password, adminData);
     (0, sendResponse_1.default)(res, {
         success: true,

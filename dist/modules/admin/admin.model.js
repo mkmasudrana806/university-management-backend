@@ -62,7 +62,7 @@ const adminSchema = new mongoose_1.Schema({
         enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
     },
     presentAddress: { type: String, required: true, trim: true },
-    profileImg: { type: String },
+    profileImg: { type: String, default: "" },
     managementDepartment: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "AcademicDepartment",
