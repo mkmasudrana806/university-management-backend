@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- *make any nested non-primitive object to flattened object
-
- * @param obj non-primitive object to flatten
+ * make any nested non-primitive object to flattened object
+ *
+ * @param obj non-primitive object to be flattened
  * @param parentKey optional, by default empty string: ""
  * @param result optional, by default empty object: {}
  * @returns

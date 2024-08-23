@@ -1,5 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * handle mongoose objectId cast error
+ *
+ * @param err app error
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleCastError = (err) => {
     const statusCode = 400;
     const errorSources = [

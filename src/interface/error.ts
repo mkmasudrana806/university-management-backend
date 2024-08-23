@@ -4,6 +4,7 @@ export type TErrorScources = {
   message: string;
 }[];
 
+// common error response type for all type error
 export type TGenericErrorResponse = {
   statusCode: number;
   message: string;

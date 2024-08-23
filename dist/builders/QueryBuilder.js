@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class QueryBuilder {
     /**
      *
-     * @param modelQuery Model
+     * @param modelQuery Model. like User, Student, Faculty
      * @param query req.query object
      */
     constructor(modelQuery, query) {
@@ -22,8 +22,8 @@ class QueryBuilder {
     /**
      *  search
      *
-     * @param searchableFields which fields want to search. ex: ["name.firstName", "name.lastName", "email", "address"] and so on
-     * @returns return search results
+     * @param searchableFields in which fields want to search. ex: ["name.firstName", "name.lastName", "email", "address"] and so on
+     * @returns return partial matching results
      */
     search(searchableFields) {
         var _a;
@@ -85,6 +85,10 @@ class QueryBuilder {
         return this;
     }
     // count documents
+    /**
+     *
+     * @returns it return total documents, page, limit and totalPage
+     */
     countTotal() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;

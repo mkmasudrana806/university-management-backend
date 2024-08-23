@@ -1,3 +1,6 @@
+/**
+ * AppError class extends Error class with custom statusCode and message
+ */
 class AppError extends Error {
   public statusCode: number;
   constructor(statusCode: number, message: string, stack = "") {

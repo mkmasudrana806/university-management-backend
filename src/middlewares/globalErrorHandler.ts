@@ -8,11 +8,11 @@ import handleCastError from "../errors/handleCastError";
 import handleDuplicateKeyError from "../errors/handleDuplicateKeyError";
 import AppError from "../utils/appError";
 
+// global error handler middleware
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  // setting default values
+  // default error response
   let statusCode = 500;
   let message = "Something went wrong!";
-
   let errorSources: TErrorScources = [
     {
       path: "",
@@ -70,15 +70,3 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 export default globalErrorHandler;
-
-// common error patterns
-/*
-success,
-message,
-errorScources: [
-path: '',
-message: 'Something went wrong',
-],
-stack
-
-*/

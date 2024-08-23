@@ -13,8 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
-//middleware: client -> route -> middleware -> controller -> service
-// validate request middleware
+/**
+ *
+ * @param schema validation schema, want to validate req.body data with schema validation
+ * @returns return to next middleware if schema validation is successful
+ */
 const validateRequest = (schema) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         yield schema.parseAsync({

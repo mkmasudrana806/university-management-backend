@@ -1,5 +1,11 @@
 import { TErrorScources, TGenericErrorResponse } from "../interface/error";
 
+/**
+ * handle duplicate entry error in database
+ *
+ * @param err app error from global error route
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleDuplicateKeyError = (err: any): TGenericErrorResponse => {
   // extract value within double quotes using regex
   const match = err.message.match(/"([^"]*)"/);

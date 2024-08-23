@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import { TErrorScources, TGenericErrorResponse } from "../interface/error";
 
+/**
+ * handle mongoose Model validation error
+ *
+ * @param err app error from global error route
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleValidationError = (
   err: mongoose.Error.ValidationError
 ): TGenericErrorResponse => {

@@ -18,8 +18,15 @@ const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../app/config"));
 const user_model_1 = require("../modules/user/user.model");
-//middleware: client -> route -> auth -> zod validation -> controller -> service
-// auth middleware to verify jweToken
+/**
+ * auth middleware to verify jweToken
+ *
+ * @param requiredRoles required roles. like auth('student', 'admin')
+ * @validations token verify and check user exists or deleted or blocked.
+ * @validations jwt expires date verify with last password change time and authorization check
+ * @returns set user token object to query object and return to next middleware
+ * @mechanism client -> route -> `auth` -> zod validation -> controller -> service -> mongoose -> mongodb database
+ */
 const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const token = req.headers.authorization;

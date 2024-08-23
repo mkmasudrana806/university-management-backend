@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_constant_1 = require("../../modules/user/user.constant");
 const user_model_1 = require("../../modules/user/user.model");
 const config_1 = __importDefault(require("../config"));
+// static superAdmin data.
 const superAdminUser = {
     id: "0001",
     email: "superadmin@gmail.com",
@@ -24,6 +25,9 @@ const superAdminUser = {
     status: "in-progress",
     isDeleted: false,
 };
+/**
+ * if superAdmin doesn't exist in database, it created a super admin when database is connected
+ */
 const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     // when database is connected, we will check is there any user who is super admin
     const isSuperAdminExists = yield user_model_1.User.findOne({ role: user_constant_1.USER_ROLE.superAdmin });

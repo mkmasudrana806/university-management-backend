@@ -22,11 +22,11 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // parsers ( middleware )
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ["http://localhost:5173"] }));
+app.use((0, cors_1.default)({ origin: ["http://localhost:5173"], credentials: true }));
 // routes moddleware
 app.use("/api/v1", routes_1.default);
 app.use("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    Promise.reject();
+    res.send("Api is running...");
 }));
 // not found route
 app.use(notFound_1.default);

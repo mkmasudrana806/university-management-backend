@@ -6,7 +6,7 @@ class QueryBuilder<T> {
 
   /**
    *
-   * @param modelQuery Model
+   * @param modelQuery Model. like User, Student, Faculty
    * @param query req.query object
    */
   constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
@@ -17,8 +17,8 @@ class QueryBuilder<T> {
   /**
    *  search
    *
-   * @param searchableFields which fields want to search. ex: ["name.firstName", "name.lastName", "email", "address"] and so on
-   * @returns return search results
+   * @param searchableFields in which fields want to search. ex: ["name.firstName", "name.lastName", "email", "address"] and so on
+   * @returns return partial matching results
    */
   search(searchableFields: string[]) {
     let searchTerm = this?.query?.searchTerm;
@@ -86,6 +86,10 @@ class QueryBuilder<T> {
   }
 
   // count documents
+  /**
+   *
+   * @returns it return total documents, page, limit and totalPage
+   */
   async countTotal() {
     const totalQueryries = this.modelQuery.getFilter(); // it gives previous filtered documents
     const total = await this.modelQuery.model.countDocuments(totalQueryries);

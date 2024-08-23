@@ -7,8 +7,16 @@ import config from "../app/config";
 import { TUserRole } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 
-//middleware: client -> route -> auth -> zod validation -> controller -> service
-// auth middleware to verify jweToken
+/**
+ * auth middleware to verify jweToken
+ *
+ * @param requiredRoles required roles. like auth('student', 'admin')
+ * @validations token verify and check user exists or deleted or blocked.
+ * @validations jwt expires date verify with last password change time and authorization check
+ * @returns set user token object to query object and return to next middleware
+ * @mechanism client -> route -> `auth` -> zod validation -> controller -> service -> mongoose -> mongodb database
+ */
+
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;

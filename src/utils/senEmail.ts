@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import config from "../app/config";
 
 /**
+ * sendEmail for reseting user password
  *
  * @param receiver receiver email address
  * @param body body of this email address in html format
@@ -11,20 +12,20 @@ const sendEmail = async (receiver: string, body: string) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: config.node_env === "production", // Use `true` for port 465, `false` for all other ports
+    secure: config.node_env === "production",
     auth: {
-      user: "mkmasudrana806@gmail.com",
-      pass: "dmsb towk lkdy apxe",
+      user: config.node_mailer_user,
+      pass: config.node_mailer_password,
     },
   });
 
   // send mail with defined transport object
   await transporter.sendMail({
-    from: "mkmasudrana806@gmail.com", // sender address
-    to: receiver, // list of receivers
-    subject: "Reset Your Password Within 10 min", // Subject line
-    text: "Hello Dear, please reset your password by 10 min. here is the reset link", // plain text body
-    html: body, // html body
+    from: config.node_mailer_user,
+    to: receiver,
+    subject: "Reset Your Password Within 10 min",
+    text: "Hello Dear, please reset your password by 10 min. here is the reset link",
+    html: body,
   });
   return;
 };

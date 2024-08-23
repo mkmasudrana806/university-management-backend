@@ -1,6 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// handle zod error functions
+/**
+ * handle zod validation error
+ *
+ * @param err app error from global error route
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleZodError = (err) => {
     const statusCode = 400;
     const errorSources = err.issues.map((issue) => {

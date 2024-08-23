@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const config_1 = __importDefault(require("../app/config"));
 /**
+ * sendEmail for reseting user password
  *
  * @param receiver receiver email address
  * @param body body of this email address in html format
@@ -24,19 +25,19 @@ const sendEmail = (receiver, body) => __awaiter(void 0, void 0, void 0, function
     const transporter = nodemailer_1.default.createTransport({
         host: "smtp.gmail.com",
         port: 587,
-        secure: config_1.default.node_env === "production", // Use `true` for port 465, `false` for all other ports
+        secure: config_1.default.node_env === "production",
         auth: {
-            user: "mkmasudrana806@gmail.com",
-            pass: "dmsb towk lkdy apxe",
+            user: config_1.default.node_mailer_user,
+            pass: config_1.default.node_mailer_password,
         },
     });
     // send mail with defined transport object
     yield transporter.sendMail({
-        from: "mkmasudrana806@gmail.com", // sender address
-        to: receiver, // list of receivers
-        subject: "Reset Your Password Within 10 min", // Subject line
-        text: "Hello Dear, please reset your password by 10 min. here is the reset link", // plain text body
-        html: body, // html body
+        from: config_1.default.node_mailer_user,
+        to: receiver,
+        subject: "Reset Your Password Within 10 min",
+        text: "Hello Dear, please reset your password by 10 min. here is the reset link",
+        html: body,
     });
     return;
 });

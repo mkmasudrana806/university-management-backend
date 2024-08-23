@@ -1,7 +1,12 @@
 import { ZodError, ZodIssue } from "zod";
 import { TErrorScources, TGenericErrorResponse } from "../interface/error";
 
-// handle zod error functions
+/**
+ * handle zod validation error
+ *
+ * @param err app error from global error route
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleZodError = (err: ZodError): TGenericErrorResponse => {
   const statusCode = 400;
   const errorSources: TErrorScources = err.issues.map((issue: ZodIssue) => {
@@ -18,4 +23,3 @@ const handleZodError = (err: ZodError): TGenericErrorResponse => {
 };
 
 export default handleZodError;
-

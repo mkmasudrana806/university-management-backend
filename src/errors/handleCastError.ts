@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import { TErrorScources, TGenericErrorResponse } from "../interface/error";
 
+/**
+ * handle mongoose objectId cast error
+ *
+ * @param err app error
+ * @returns return statusCode, message, errorScourses array
+ */
 const handleCastError = (
   err: mongoose.Error.CastError
 ): TGenericErrorResponse => {

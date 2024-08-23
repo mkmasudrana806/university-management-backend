@@ -3,7 +3,6 @@ import app from "./app";
 import config from "./app/config";
 import mongoose from "mongoose";
 import seedSuperAdmin from "./app/DB";
-
 require("dotenv").config();
 
 let server: Server;

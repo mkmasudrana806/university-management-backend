@@ -7,7 +7,7 @@ import fs from "fs";
  * -------------- send image to cloudinary ----------------------
  *
  * @param imageName name of the image to send to cloudinary
- * @param path path of the image to send to cloudinary
+ * @param path path(where image first temporary uploaded into server) of the image to send to cloudinary
  */
 const sendImageToCloudinary = async (imageName: string, path: string) => {
   // Configuration
@@ -45,7 +45,7 @@ const sendImageToCloudinary = async (imageName: string, path: string) => {
     if (err) {
       console.log(err);
     } else {
-      console.log("file is deleted successfully!");
+      console.log("file is deleted successfull from server");
     }
   });
   return uploadResult;

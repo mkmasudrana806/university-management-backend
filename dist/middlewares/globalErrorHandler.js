@@ -10,8 +10,9 @@ const handleValidationError_1 = __importDefault(require("../errors/handleValidat
 const handleCastError_1 = __importDefault(require("../errors/handleCastError"));
 const handleDuplicateKeyError_1 = __importDefault(require("../errors/handleDuplicateKeyError"));
 const appError_1 = __importDefault(require("../utils/appError"));
+// global error handler middleware
 const globalErrorHandler = (err, req, res, next) => {
-    // setting default values
+    // default error response
     let statusCode = 500;
     let message = "Something went wrong!";
     let errorSources = [
@@ -72,14 +73,3 @@ const globalErrorHandler = (err, req, res, next) => {
     });
 };
 exports.default = globalErrorHandler;
-// common error patterns
-/*
-success,
-message,
-errorScources: [
-path: '',
-message: 'Something went wrong',
-],
-stack
-
-*/
