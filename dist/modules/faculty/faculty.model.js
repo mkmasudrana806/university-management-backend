@@ -49,6 +49,7 @@ const facultySchema = new mongoose_1.Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
         trim: true,
         validate: {
             validator: (value) => (0, validator_1.isEmail)(value),

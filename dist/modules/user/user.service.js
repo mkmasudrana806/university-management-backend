@@ -39,6 +39,12 @@ const mongoose_1 = __importDefault(require("mongoose"));
  */
 const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = {};
+    // check if the email address already exists
+    const isEmailExists = yield user_model_1.User.findOne({ email: payload === null || payload === void 0 ? void 0 : payload.email });
+    if (isEmailExists) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, `${payload.email} is already exists`);
+    }
+    // set default password, role and email address
     userData.password = password || config_1.default.default_password;
     userData.role = "student";
     userData.email = payload.email;
@@ -56,8 +62,8 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
     payload.academicFaculty = academicDepartment.academicFaculty;
     // set generated id
     userData.id = yield user_utils_1.userUtils.generateStudentId(admissionSemester);
+    // send image to cloudinary and set profileImg as cloudinary secure_url
     if (file) {
-        // send image to cloudinary
         const imageName = `${userData.id}-${payload.name.firstName}`;
         const path = file === null || file === void 0 ? void 0 : file.path;
         const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
@@ -90,172 +96,173 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
         throw new appError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Faild to create a student and uesr");
     }
 });
-// TODO: uncomment this, and rmeove below method.
-// create faculty into db
-// const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
-//   // create a user data object
-//   const userData: Partial<TUser> = {};
-//   // if password is not provided, use default password
-//   userData.password = password || (config.default_password as string);
-//   // set user role
-//   userData.role = "faculty";
-//   const session = await mongoose.startSession();
-//   try {
-//     session.startTransaction();
-//     // set generated id
-//     userData.id = await userUtils.generateFacultyId();
-//     // create a new user: (transaction-1)
-//     const newUser = await User.create([userData], { session });
-//     if (!newUser.length) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new user");
-//     }
-//     // set id, _id as user
-//     payload.id = newUser[0].id;
-//     payload.user = newUser[0]._id; // reference id
-//     // create a faculty (transaction-2)
-//     const newFaculty = await Faculty.create([payload], { session });
-//     if (!newFaculty.length) {
-//       throw new AppError(
-//         httpStatus.BAD_REQUEST,
-//         "Faild to create a new Faculty in second transaction"
-//       );
-//     }
-//     await session.commitTransaction();
-//     await session.endSession();
-//     return newFaculty[0];
-//   } catch (error) {
-//     await session.abortTransaction();
-//     await session.endSession();
-//     throw new AppError(
-//       httpStatus.BAD_REQUEST,
-//       "faild to create a new faculty in rollback"
-//     );
-//   }
-// };
+/**
+ * create a faculty into db
+ *
+ * @param file image file from client
+ * @param password new faculty password
+ * @param payload new faculty data
+ * @features dynamically handle user data in backend
+ * @features abort transaction if it faild to create a faculty or an user otherwise commit it
+ * @returns newly created faculty data
+ */
 const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // create a user data object
     const userData = {};
-    // if password is not provided, use default password
+    // check if the email address already exists
+    const isEmailExists = yield user_model_1.User.findOne({ email: payload === null || payload === void 0 ? void 0 : payload.email });
+    if (isEmailExists) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, `${payload.email} is already exists`);
+    }
+    // set default password, role, email and generated id
     userData.password = password || config_1.default.default_password;
-    // set user role and user email
     userData.role = "faculty";
     userData.email = payload.email;
     // set generated id
     userData.id = yield user_utils_1.userUtils.generateFacultyId();
+    // send image to cloudinary and set profileImg as cloudinary secure_url
     if (file) {
-        // send image to cloudinary
         const imageName = `${userData.id}-${payload.name.firstName}`;
         const path = file === null || file === void 0 ? void 0 : file.path;
         const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
-        // set profileImg
         payload.profileImg = profileImage.secure_url;
     }
-    // create a new user: (transaction-1)
-    const newUser = yield user_model_1.User.create(userData);
-    if (!newUser) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new user");
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        // create a new user: (transaction-1)
+        const newUser = yield user_model_1.User.create([userData], { session });
+        if (!newUser.length) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new user");
+        }
+        payload.id = newUser[0].id;
+        payload.user = newUser[0]._id; // reference id to user
+        // create a faculty (transaction-2)
+        const newFaculty = yield faculty_model_1.default.create([payload], { session });
+        if (!newFaculty.length) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new Faculty in second transaction");
+        }
+        yield session.commitTransaction();
+        yield session.endSession();
+        return newFaculty;
     }
-    // set id, _id as user
-    payload.id = newUser.id;
-    payload.user = newUser._id; // reference id
-    // create a faculty (transaction-2)
-    const newFaculty = yield faculty_model_1.default.create(payload);
-    if (!newFaculty) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new Faculty in second transaction");
+    catch (error) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a faculty");
     }
-    return newFaculty;
 });
-// TODO: uncomment this, and remove below method.
-// create admin into db
-// const createAdminIntoDB = async (password: string, payload: TAdmin) => {
-//   // create a user data object
-//   const userData: Partial<TUser> = {};
-//   // if password is not provided, use default password
-//   userData.password = password || (config.default_password as string);
-//   // set user role
-//   userData.role = "admin";
-//   const session = await mongoose.startSession();
-//   try {
-//     session.startTransaction();
-//     // set generated id
-//     userData.id = await userUtils.generateAdminId();
-//     // create a new user: (transaction-1)
-//     const newUser = await User.create([userData], { session });
-//     if (!newUser.length) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new user");
-//     }
-//     // set id, _id as user
-//     payload.id = newUser[0].id;
-//     payload.user = newUser[0]._id; // reference id
-//     // create a Admin (transaction-2)
-//     const newAdmin = await Admin.create([payload], { session });
-//     if (!newAdmin.length) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new admin");
-//     }
-//     await session.commitTransaction();
-//     await session.endSession();
-//     return newAdmin[0];
-//   } catch (error) {
-//     await session.abortTransaction();
-//     await session.endSession();
-//     throw new AppError(
-//       httpStatus.BAD_REQUEST,
-//       "faild to create a new admin in rollback"
-//     );
-//   }
-// };
-// temporary without transaction
-// create admin into db
+/**
+ * create an admin into db
+ *
+ * @param file image file from client
+ * @param password new admin password
+ * @param payload new admin data
+ * @features dynamically handle user data in backend
+ * @features abort transaction if it faild to create an admin or an user otherwise commit it
+ * @returns newly created faculty data
+ */
 const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // create a user data object
     const userData = {};
-    // if password is not provided, use default password
+    // check if the email address already exists
+    const isEmailExists = yield user_model_1.User.findOne({ email: payload === null || payload === void 0 ? void 0 : payload.email });
+    if (isEmailExists) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, `${payload.email} is already exists`);
+    }
+    // set default password, role, email and generated id
     userData.password = password || config_1.default.default_password;
-    // set user role and user email
     userData.role = "admin";
     userData.email = payload.email;
-    // set generated id
     userData.id = yield user_utils_1.userUtils.generateAdminId();
+    // send image to cloudinary and set profileImg as cloudinary secure_url
     if (file) {
-        // send image to cloudinary
         const imageName = `${userData.id}-${payload.name.firstName}`;
         const path = file === null || file === void 0 ? void 0 : file.path;
         const profileImage = yield (0, sendImageToCloudinary_1.default)(imageName, path);
-        // set profileImg
         payload.profileImg = profileImage.secure_url;
     }
-    // create a new user: (transaction-1)
-    const newUser = yield user_model_1.User.create(userData);
-    if (!newUser) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new user");
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        // create a new user: (transaction-1)
+        const newUser = yield user_model_1.User.create([userData], { session });
+        if (!newUser.length) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new user");
+        }
+        payload.id = newUser[0].id;
+        payload.user = newUser[0]._id; // add reference to user property
+        // create an Admin (transaction-2)
+        const newAdmin = yield admin_model_1.default.create([payload], { session });
+        if (!newAdmin.length) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new admin");
+        }
+        yield session.commitTransaction();
+        yield session.endSession();
+        return newAdmin;
     }
-    // set id, _id as user
-    payload.id = newUser.id;
-    payload.user = newUser._id; // reference id
-    // create a Admin (transaction-2)
-    const newAdmin = yield admin_model_1.default.create(payload);
-    if (!newAdmin) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create a new admin");
+    catch (error) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Faild to create an admin");
     }
-    return newAdmin;
 });
-// -------------------- getMe --------------------
+/**
+ * -------------------- getMe --------------------
+ *
+ * @param userId custom user id
+ * @param role user role like 'student' or 'admin' or 'faculty' or 'superAdmin'
+ * @returns base on role, return that user data
+ */
 const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
     let result = null;
     if (role === user_constant_1.USER_ROLE.student) {
         result = yield student_model_1.default.findOne({ id: userId }).populate("user");
     }
-    if (role === user_constant_1.USER_ROLE.faculty) {
+    else if (role === user_constant_1.USER_ROLE.faculty) {
         result = yield faculty_model_1.default.findOne({ id: userId }).populate("user");
     }
-    if (role === user_constant_1.USER_ROLE.admin) {
+    else if (role === user_constant_1.USER_ROLE.admin || role === user_constant_1.USER_ROLE.superAdmin) {
         result = yield admin_model_1.default.findOne({ id: userId }).populate("user");
     }
     return result;
 });
-// -------------------- changeUserStatus --------------------
-const changeUserStatus = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findByIdAndUpdate(id, payload, { newUser: true });
+/**
+ *  -------------------- changeUserStatus --------------------
+ *
+ * @param currentAdminRole it can be superAdmin or admin
+ * @param id user id (mongodb _id)
+ * @param payload user status like 'in-progress' or 'blocked
+ * @validation check user exists, or deleted, or is already blocked
+ * @features superAdmin can change anyone status except ownself. admin can change faculty and student status except ownself.
+ * @returns return updated user
+ */
+const changeUserStatus = (currentAdminRole, id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // check if user exists
+    const user = yield user_model_1.User.findById(id);
+    if (!user) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "User is not found!");
+    }
+    // check if the user is already deleted
+    if (user === null || user === void 0 ? void 0 : user.isDeleted) {
+        throw new appError_1.default(http_status_1.default.FORBIDDEN, "User is already deleted!");
+    }
+    // check user status
+    if ((user === null || user === void 0 ? void 0 : user.status) === "blocked") {
+        throw new appError_1.default(http_status_1.default.FORBIDDEN, "Requested user is already blocked!");
+    }
+    // allow superAdmin to change status of a student, faculty, and admin. ownself is not allowed
+    if (currentAdminRole === user_constant_1.USER_ROLE.superAdmin &&
+        user.role === user_constant_1.USER_ROLE.superAdmin) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "As a superAdmin, You can not change ownself status");
+    }
+    // allow admin to change status of student and faculty. ownself is not allowed
+    if ((currentAdminRole === user_constant_1.USER_ROLE.admin &&
+        user.role === user_constant_1.USER_ROLE.superAdmin) ||
+        (currentAdminRole === user_constant_1.USER_ROLE.admin && user.role === user_constant_1.USER_ROLE.admin)) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "Admin can't change another admin or superAdmin status!");
+    }
+    const result = yield user_model_1.User.findByIdAndUpdate(id, payload, { new: true });
     return result;
 });
 exports.UserServices = {

@@ -22,8 +22,8 @@ main().catch((err) => console.log(err));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // await mongoose.connect(config.database_url as string); // remote mongodb
-            yield mongoose_1.default.connect("mongodb://localhost:27017/phuniversity"); // local mongodb
+            yield mongoose_1.default.connect(config_1.default.database_url); // remote mongodb
+            // await mongoose.connect("mongodb://localhost:27017/phuniversity"); // local mongodb
             console.log("Database Connected!");
             (0, DB_1.default)();
             server = app_1.default.listen(config_1.default.port, () => {

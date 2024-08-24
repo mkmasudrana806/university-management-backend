@@ -14,6 +14,7 @@ const admin_validation_1 = require("../admin/admin.validation");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const user_constant_1 = require("./user.constant");
 const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
+const user_validation_1 = require("./user.validation");
 const router = express_1.default.Router();
 // routes
 // create a student
@@ -36,6 +37,6 @@ router.post("/create-admin", (0, auth_1.default)(user_constant_1.USER_ROLE.super
 // get me route
 router.get("/me", (0, auth_1.default)(user_constant_1.USER_ROLE.student, user_constant_1.USER_ROLE.faculty, user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.superAdmin), user_controller_1.UserControllers.getMe);
 // change user status
-router.post("/change-status/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.superAdmin, user_constant_1.USER_ROLE.admin), user_controller_1.UserControllers.changeUserStatus);
+router.patch("/change-status/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.superAdmin, user_constant_1.USER_ROLE.admin), (0, validateRequestData_1.default)(user_validation_1.UserValidation.changeUserStatusValidationSchema), user_controller_1.UserControllers.changeUserStatus);
 // export routes
 exports.userRoutes = router;

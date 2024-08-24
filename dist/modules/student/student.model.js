@@ -75,6 +75,7 @@ const studentSchema = new mongoose_1.Schema({
         type: String,
         required: true,
         trim: true,
+        unique: true,
         validate: {
             validator: (value) => (0, validator_1.isEmail)(value),
             message: "{VALUE} is not a valid email address",

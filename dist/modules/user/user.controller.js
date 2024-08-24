@@ -21,7 +21,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 // -------------------- create a student --------------------
 const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { password, student: studentData } = req.body;
-    // save data to database
+    // pass data to service
     const result = yield user_service_1.UserServices.createStudentIntoDB(req.file, password, studentData);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -32,9 +32,8 @@ const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 // -------------------- create a faculty --------------------
 const createFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // pass data to service
     const { password, faculty: facultyData } = req.body;
-    // save data to database
+    // pass data to service
     const result = yield user_service_1.UserServices.createFacultyIntoDB(req.file, password, facultyData);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -56,6 +55,7 @@ const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 }));
 // -------------------- getMe ---------------------
 const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //  userId and role extracted from auth middleware
     const { userId, role } = req.user;
     const result = yield user_service_1.UserServices.getMe(userId, role);
     (0, sendResponse_1.default)(res, {
@@ -67,7 +67,8 @@ const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, 
 }));
 // -------------------- changeUserStatus ---------------------
 const changeUserStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.changeUserStatus(req.params.id, req.body);
+    const { role } = req.user;
+    const result = yield user_service_1.UserServices.changeUserStatus(role, req.params.id, req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

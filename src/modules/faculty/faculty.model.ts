@@ -41,6 +41,7 @@ const facultySchema = new Schema<TFaculty, IFacultyModel>({
   email: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
     validate: {
       validator: (value: string) => isEmail(value),

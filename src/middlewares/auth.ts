@@ -25,7 +25,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
-        "You are not authorized, as not token give"
+        "Unauthorized access!, token is missing"
       );
     }
 
@@ -37,24 +37,24 @@ const auth = (...requiredRoles: TUserRole[]) => {
         config.jwt_access_secret as string
       ) as JwtPayload;
     } catch (error) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized");
+      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
     }
     const { userId, role, iat } = decoded;
 
     // check if the user is exists
     const user = await User.isUserExistsByCustomId(userId);
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "User is not found in auth!");
+      throw new AppError(httpStatus.NOT_FOUND, "Auth user is not found!");
     }
 
     // check if the user is already deleted
     if (user?.isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, "User is already deleted!");
+      throw new AppError(httpStatus.FORBIDDEN, "Auth user is already deleted!");
     }
 
     // check user status
     if (user?.status === "blocked") {
-      throw new AppError(httpStatus.FORBIDDEN, "User is blocked!");
+      throw new AppError(httpStatus.FORBIDDEN, "Auth user is alreayd blocked!");
     }
 
     if (
@@ -72,10 +72,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
     // check if the user is authorized access
     if (requiredRoles.length > 0 && !requiredRoles?.includes(role)) {
-      throw new AppError(
-        httpStatus.UNAUTHORIZED,
-        "You are not authorized, as required role is not matches"
-      );
+      throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access!");
     }
     req.user = decoded as JwtPayload;
     next();

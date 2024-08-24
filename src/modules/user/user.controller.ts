@@ -8,7 +8,7 @@ import catchAsync from "../../utils/catchAsync";
 const createStudent = catchAsync(async (req, res) => {
   const { password, student: studentData } = req.body;
 
-  // save data to database
+  // pass data to service
   const result = await UserServices.createStudentIntoDB(
     req.file,
     password,
@@ -25,10 +25,9 @@ const createStudent = catchAsync(async (req, res) => {
 
 // -------------------- create a faculty --------------------
 const createFaculty = catchAsync(async (req, res) => {
-  // pass data to service
   const { password, faculty: facultyData } = req.body;
 
-  // save data to database
+  // pass data to service
   const result = await UserServices.createFacultyIntoDB(
     req.file,
     password,
@@ -63,6 +62,7 @@ const createAdmin = catchAsync(async (req, res) => {
 
 // -------------------- getMe ---------------------
 const getMe = catchAsync(async (req, res) => {
+  //  userId and role extracted from auth middleware
   const { userId, role } = req.user;
   const result = await UserServices.getMe(userId, role);
 
@@ -76,7 +76,12 @@ const getMe = catchAsync(async (req, res) => {
 
 // -------------------- changeUserStatus ---------------------
 const changeUserStatus = catchAsync(async (req, res) => {
-  const result = await UserServices.changeUserStatus(req.params.id, req.body);
+  const { role } = req.user;
+  const result = await UserServices.changeUserStatus(
+    role,
+    req.params.id,
+    req.body
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

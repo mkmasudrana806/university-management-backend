@@ -19,7 +19,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../app/config"));
 const user_model_1 = require("../modules/user/user.model");
 /**
- * auth middleware to verify jweToken
+ * auth middleware to verify jwt Token
  *
  * @param requiredRoles required roles. like auth('student', 'admin')
  * @validations token verify and check user exists or deleted or blocked.
@@ -32,30 +32,29 @@ const auth = (...requiredRoles) => {
         const token = req.headers.authorization;
         // check if the token is sent from the client
         if (!token) {
-            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized, as not token give");
+            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "Unauthorized access!, token is missing");
         }
         let decoded;
         try {
             // check if the token is valid
             decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
-            console.log("decoded: ", decoded);
         }
         catch (error) {
-            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
+            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized!");
         }
         const { userId, role, iat } = decoded;
         // check if the user is exists
         const user = yield user_model_1.User.isUserExistsByCustomId(userId);
         if (!user) {
-            throw new appError_1.default(http_status_1.default.NOT_FOUND, "User is not found in auth!");
+            throw new appError_1.default(http_status_1.default.NOT_FOUND, "Auth user is not found!");
         }
         // check if the user is already deleted
         if (user === null || user === void 0 ? void 0 : user.isDeleted) {
-            throw new appError_1.default(http_status_1.default.FORBIDDEN, "User is already deleted!");
+            throw new appError_1.default(http_status_1.default.FORBIDDEN, "Auth user is already deleted!");
         }
         // check user status
         if ((user === null || user === void 0 ? void 0 : user.status) === "blocked") {
-            throw new appError_1.default(http_status_1.default.FORBIDDEN, "User is blocked!");
+            throw new appError_1.default(http_status_1.default.FORBIDDEN, "Auth user is alreayd blocked!");
         }
         if (user.passwordChangedAt &&
             user_model_1.User.isJWTIssuedBeforePasswordChange(user.passwordChangedAt, iat)) {
@@ -63,7 +62,7 @@ const auth = (...requiredRoles) => {
         }
         // check if the user is authorized access
         if (requiredRoles.length > 0 && !(requiredRoles === null || requiredRoles === void 0 ? void 0 : requiredRoles.includes(role))) {
-            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized, as required role is not matches");
+            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "Unauthorized access!");
         }
         req.user = decoded;
         next();

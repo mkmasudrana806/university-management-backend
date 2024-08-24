@@ -9,6 +9,7 @@ import { adminValidations } from "../admin/admin.validation";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "./user.constant";
 import { upload } from "../../utils/sendImageToCloudinary";
+import { UserValidation } from "./user.validation";
 
 const router = express.Router();
 
@@ -66,9 +67,10 @@ router.get(
 );
 
 // change user status
-router.post(
+router.patch(
   "/change-status/:id",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  validateRequest(UserValidation.changeUserStatusValidationSchema),
   UserControllers.changeUserStatus
 );
 

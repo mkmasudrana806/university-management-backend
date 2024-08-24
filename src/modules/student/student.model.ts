@@ -76,6 +76,7 @@ const studentSchema = new Schema<TStudent, IStudentModel>(
       type: String,
       required: true,
       trim: true,
+      unique: true,
       validate: {
         validator: (value: string) => isEmail(value),
         message: "{VALUE} is not a valid email address",
