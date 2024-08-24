@@ -44,13 +44,12 @@ const changePassword = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
   const { accessToken } = await authServices.refreshTokenSetup(refreshToken);
-  console.log(accessToken);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Access token is created successfully",
-    data: accessToken,
+    data: {accessToken},
   });
 });
 

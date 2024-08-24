@@ -12,79 +12,30 @@ import { TFaculty } from "../faculty/faculty.interface";
 import Faculty from "../faculty/faculty.model";
 import { TAdmin } from "../admin/admin.interface";
 import Admin from "../admin/admin.model";
-import { JwtPayload } from "jsonwebtoken";
 import { USER_ROLE } from "./user.constant";
 import sendImageToCloudinary from "../../utils/sendImageToCloudinary";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
+import mongoose from "mongoose";
 
-// TODO: uncomment it, and remove below createStudentIntoDb method
-// create student into db
-// const createStudentIntoDB = async (password: string, payload: TStudent) => {
-//   // create a user and studentData object
-//   const userData: Partial<TUser> = {};
-
-//   // if password is not provided, use default password
-//   userData.password = password || (config.default_password as string);
-
-//   // set student role
-//   userData.role = "student";
-
-//   // find semester information
-//   const admissionSemester = (await Semester.findById(
-//     payload.admissionSemester
-//   )) as TAcademicSemester;
-
-//   const session = await mongoose.startSession();
-
-//   try {
-//     session.startTransaction();
-//     // set generated id
-//     userData.id = await userUtils.generateStudentId(admissionSemester);
-
-//     // create a new user: (transaction-1)
-//     const newUser = await User.create([userData], { session });
-
-//     if (!newUser.length) {
-//       throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new user");
-//     }
-//     // set id, _id as user
-//     payload.id = newUser[0].id;
-//     payload.user = newUser[0]._id; // reference id
-
-//     // create a student (transaction-2)
-//     const newStudent = await Student.create([payload], { session });
-
-//     if (!newStudent.length) {
-//       throw new AppError(
-//         httpStatus.BAD_REQUEST,
-//         "Faild to create a new student"
-//       );
-//     }
-
-//     await session.commitTransaction();
-//     await session.endSession();
-
-//     return newStudent[0];
-//   } catch (error) {
-//     await session.abortTransaction();
-//     await session.endSession();
-//     throw new AppError(httpStatus.BAD_REQUEST, "faild to create a new student");
-//   }
-// };
-
-// without transaction.
+/**
+ * create a student into db
+ *
+ * @param file image file from client
+ * @param password new student password
+ * @param payload new student data
+ * @validations check semester, academic department exists.
+ * @features abort transaction if it faild to create a student or an user otherwise commit it
+ * @features dynamically handle user data in backend
+ * @returns newly created student data
+ */
 const createStudentIntoDB = async (
   file: any,
   password: string,
   payload: TStudent
 ) => {
-  // create a user and studentData object
   const userData: Partial<TUser> = {};
 
-  // if password is not provided, use default password
   userData.password = password || (config.default_password as string);
-
-  // set user role and user email
   userData.role = "student";
   userData.email = payload.email;
 
@@ -101,11 +52,10 @@ const createStudentIntoDB = async (
     payload.academicDepartment
   );
   if (!academicDepartment) {
-    throw new AppError(httpStatus.NOT_FOUND, "Academic faculty not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Academic Department not found");
   }
   // set academicFaculty data
   payload.academicFaculty = academicDepartment.academicFaculty;
-
   // set generated id
   userData.id = await userUtils.generateStudentId(admissionSemester);
 
@@ -114,28 +64,44 @@ const createStudentIntoDB = async (
     const imageName = `${userData.id}-${payload.name.firstName}`;
     const path = file?.path;
     const profileImage: any = await sendImageToCloudinary(imageName, path);
-
-    // set profileImg
     payload.profileImg = profileImage.secure_url;
   }
 
-  // create a new user: (transaction-1)
-  const newUser = await User.create(userData);
+  const session = await mongoose.startSession();
+  try {
+    // start transaction
+    session.startTransaction();
 
-  if (!newUser) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new user");
+    // create a new user: (transaction-1)
+    const newUser = await User.create([userData], { session });
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new user");
+    }
+
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id; // user reference to student data
+
+    // create a student (transaction-2)
+    const newStudent = await Student.create([payload], { session });
+    if (!newStudent.length) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Faild to create a new student"
+      );
+    }
+
+    // commit the transaction
+    await session.commitTransaction();
+    await session.endSession();
+    return newStudent;
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Faild to create a student and uesr"
+    );
   }
-  // set id, _id as user
-  payload.id = newUser.id;
-  payload.user = newUser._id; // reference id
-
-  // create a student (transaction-2)
-  const newStudent = await Student.create(payload);
-
-  if (!newStudent) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Faild to create a new student");
-  }
-  return newStudent;
 };
 
 // TODO: uncomment this, and rmeove below method.

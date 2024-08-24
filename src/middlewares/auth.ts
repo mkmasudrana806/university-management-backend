@@ -8,7 +8,7 @@ import { TUserRole } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 
 /**
- * auth middleware to verify jweToken
+ * auth middleware to verify jwt Token
  *
  * @param requiredRoles required roles. like auth('student', 'admin')
  * @validations token verify and check user exists or deleted or blocked.
@@ -29,18 +29,22 @@ const auth = (...requiredRoles: TUserRole[]) => {
       );
     }
 
-    // check if the token is valid
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret as string
-    ) as JwtPayload;
-
+    let decoded;
+    try {
+      // check if the token is valid
+      decoded = jwt.verify(
+        token,
+        config.jwt_access_secret as string
+      ) as JwtPayload;
+    } catch (error) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized");
+    }
     const { userId, role, iat } = decoded;
 
     // check if the user is exists
     const user = await User.isUserExistsByCustomId(userId);
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "User is not found!");
+      throw new AppError(httpStatus.NOT_FOUND, "User is not found in auth!");
     }
 
     // check if the user is already deleted

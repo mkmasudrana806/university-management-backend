@@ -1,5 +1,4 @@
 import { TAcademicSemester } from "../academicSemester/semester.interface";
-import Faculty from "../faculty/faculty.model";
 import { User } from "./user.model";
 
 // year semesterCode 4digit number
@@ -51,8 +50,8 @@ const generateFacultyId = async () => {
 // find last faculty id
 const findLastFacultyId = async () => {
   const lastFaculty = await User.findOne({ role: "faculty" }, { id: 1, _id: 0 })
-    .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-    .lean(); // Use lean to return plain JavaScript objects
+    .sort({ createdAt: -1 })
+    .lean();
   return lastFaculty?.id ? lastFaculty.id : undefined;
 };
 
@@ -70,8 +69,8 @@ const generateAdminId = async () => {
 // find last admin id
 const findLastAdminId = async () => {
   const lastAdmin = await User.findOne({ role: "admin" }, { id: 1, _id: 0 })
-    .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-    .lean(); // Use lean to return plain JavaScript objects
+    .sort({ createdAt: -1 })
+    .lean();
   return lastAdmin?.id ? lastAdmin.id : undefined;
 };
 

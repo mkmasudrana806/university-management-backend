@@ -34,13 +34,20 @@ const auth = (...requiredRoles) => {
         if (!token) {
             throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized, as not token give");
         }
-        // check if the token is valid
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
+        let decoded;
+        try {
+            // check if the token is valid
+            decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
+            console.log("decoded: ", decoded);
+        }
+        catch (error) {
+            throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
+        }
         const { userId, role, iat } = decoded;
         // check if the user is exists
         const user = yield user_model_1.User.isUserExistsByCustomId(userId);
         if (!user) {
-            throw new appError_1.default(http_status_1.default.NOT_FOUND, "User is not found!");
+            throw new appError_1.default(http_status_1.default.NOT_FOUND, "User is not found in auth!");
         }
         // check if the user is already deleted
         if (user === null || user === void 0 ? void 0 : user.isDeleted) {

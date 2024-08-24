@@ -78,7 +78,9 @@ const refreshTokenSetup = (token) => __awaiter(void 0, void 0, void 0, function*
         user_model_1.User.isJWTIssuedBeforePasswordChange(user.passwordChangedAt, iat)) {
         throw new appError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized, your refresh token is invalid!");
     }
-    const accessToken = (0, auth_utils_1.createToken)(jsonwebtoken_1.default, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
+    // jwt data
+    const jwtPayload = { userId: user === null || user === void 0 ? void 0 : user.id, role: user === null || user === void 0 ? void 0 : user.role };
+    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
     return { accessToken };
 });
 // --------------- change password --------------------

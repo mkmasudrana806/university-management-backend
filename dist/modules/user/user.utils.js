@@ -48,8 +48,8 @@ const generateFacultyId = () => __awaiter(void 0, void 0, void 0, function* () {
 // find last faculty id
 const findLastFacultyId = () => __awaiter(void 0, void 0, void 0, function* () {
     const lastFaculty = yield user_model_1.User.findOne({ role: "faculty" }, { id: 1, _id: 0 })
-        .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-        .lean(); // Use lean to return plain JavaScript objects
+        .sort({ createdAt: -1 })
+        .lean();
     return (lastFaculty === null || lastFaculty === void 0 ? void 0 : lastFaculty.id) ? lastFaculty.id : undefined;
 });
 // generate admin ID
@@ -64,8 +64,8 @@ const generateAdminId = () => __awaiter(void 0, void 0, void 0, function* () {
 // find last admin id
 const findLastAdminId = () => __awaiter(void 0, void 0, void 0, function* () {
     const lastAdmin = yield user_model_1.User.findOne({ role: "admin" }, { id: 1, _id: 0 })
-        .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-        .lean(); // Use lean to return plain JavaScript objects
+        .sort({ createdAt: -1 })
+        .lean();
     return (lastAdmin === null || lastAdmin === void 0 ? void 0 : lastAdmin.id) ? lastAdmin.id : undefined;
 });
 exports.userUtils = {

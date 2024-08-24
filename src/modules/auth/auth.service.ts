@@ -7,6 +7,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../../app/config";
 import { createToken, verifyToken } from "./auth.utils";
 import sendEmail from "../../utils/senEmail";
+import { decode } from "punycode";
 
 // ----------------- login user into database -----------------------
 const loginUserIntoDB = async (payload: TLoginUser) => {
@@ -97,9 +98,11 @@ const refreshTokenSetup = async (token: string) => {
       "You are not authorized, your refresh token is invalid!"
     );
   }
+  // jwt data
+  const jwtPayload = { userId: user?.id, role: user?.role };
 
   const accessToken = createToken(
-    jwt,
+    jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as string
   );
@@ -247,8 +250,6 @@ const resetPasswordIntoDb = async (
 
   return result;
 };
-
-
 
 export const authServices = {
   loginUserIntoDB,

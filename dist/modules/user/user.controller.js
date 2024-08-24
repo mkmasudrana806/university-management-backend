@@ -20,7 +20,6 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 // RequestHandler: manage type of req, res, next etc
 // -------------------- create a student --------------------
 const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // pass data to service
     const { password, student: studentData } = req.body;
     // save data to database
     const result = yield user_service_1.UserServices.createStudentIntoDB(req.file, password, studentData);

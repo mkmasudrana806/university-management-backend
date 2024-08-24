@@ -6,7 +6,6 @@ import catchAsync from "../../utils/catchAsync";
 // RequestHandler: manage type of req, res, next etc
 // -------------------- create a student --------------------
 const createStudent = catchAsync(async (req, res) => {
-  // pass data to service
   const { password, student: studentData } = req.body;
 
   // save data to database
