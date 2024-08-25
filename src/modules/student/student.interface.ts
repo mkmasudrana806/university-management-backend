@@ -23,6 +23,7 @@ export type TLocalGuardian = {
   address: string;
 };
 
+// student type 
 export type TStudent = {
   id: string;
   user: Types.ObjectId;
@@ -56,5 +57,5 @@ export type TStudentModel = Model<TStudent, {}, TStudentMethods>;
 
 // *************** static method ***********
 export interface IStudentModel extends Model<TStudent> {
-  isUserExists(id: string): Promise<TStudent | null>;
+  isUserExists(_id: string): Promise<TStudent | null>;
 }

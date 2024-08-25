@@ -8,12 +8,15 @@ import AppError from "../../utils/appError";
 
 // -------------------- get all students --------------------
 const getAllStudents = catchAsync(async (req, res) => {
-  const result = await studentServices.getAllStudentsFromDB(req.query);
+  const { metaData, result } = await studentServices.getAllStudentsFromDB(
+    req.query
+  );
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "Student are retrieved successfully",
+    meta: metaData,
     data: result,
   });
 });
@@ -34,8 +37,7 @@ const getAStudent = catchAsync(async (req, res) => {
 
 // -------------------- delete a single student --------------------
 const deleteAStudent = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await studentServices.deleteAStudentFromDB(studentId);
+  const result = await studentServices.deleteAStudentFromDB(req.params?.id);
 
   if (!result)
     throw new AppError(
@@ -52,12 +54,11 @@ const deleteAStudent = catchAsync(async (req, res) => {
 
 // -------------------- update a single student --------------------
 const updateAStudent = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
   const { student } = req.body;
-  const result = await studentServices.updateAStudentFromDB(studentId, student);
-
-  if (!result)
-    throw new AppError(httpStatus.NOT_FOUND, " student is not found");
+  const result = await studentServices.updateAStudentFromDB(
+    req.params?.id,
+    student
+  );
 
   sendResponse(res, {
     success: true,

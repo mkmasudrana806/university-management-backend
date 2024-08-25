@@ -10,21 +10,30 @@ const router = express.Router();
 
 // routes
 // get all students
-router.get("/", studentControllers.getAllStudents);
+router.get(
+  "/",
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  studentControllers.getAllStudents
+);
 
 // get single student
 router.get(
   "/:id",
-  auth(USER_ROLE.faculty, USER_ROLE.admin),
+  auth(USER_ROLE.faculty, USER_ROLE.admin, USER_ROLE.superAdmin),
   studentControllers.getAStudent
 );
 
 // delete single student
-router.delete("/:id", studentControllers.deleteAStudent);
+router.delete(
+  "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  studentControllers.deleteAStudent
+);
 
 // update single student
 router.patch(
   "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(studentValidations.updateStudentValidationSchema),
   studentControllers.updateAStudent
 );

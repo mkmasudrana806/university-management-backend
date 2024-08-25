@@ -112,9 +112,9 @@ const studentSchema = new mongoose_1.Schema({
     timestamps: true,
 });
 // implementation of static method
-studentSchema.statics.isUserExists = function (id) {
+studentSchema.statics.isUserExists = function (_id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const existingUser = yield Student.findOne({ id });
+        const existingUser = yield Student.findById(_id);
         return existingUser;
     });
 };

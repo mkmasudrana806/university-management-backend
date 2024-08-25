@@ -1,10 +1,10 @@
 import { Response } from "express";
 
-type TResponse<T> = {
+type TResponse<T, U> = {
   statusCode: number;
   success: boolean;
   message?: string;
-  meta?: T;
+  meta?: U;
   data: T;
 };
 
@@ -14,7 +14,7 @@ type TResponse<T> = {
  * @param res res object
  * @param data data
  */
-const sendResponse = <T>(res: Response, data: TResponse<T>) => {
+const sendResponse = <T, U>(res: Response, data: TResponse<T, U>) => {
   res.status(data?.statusCode).json({
     success: data.success,
     message: data.message,

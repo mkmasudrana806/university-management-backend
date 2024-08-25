@@ -14,12 +14,12 @@ const user_constant_1 = require("../user/user.constant");
 const router = express_1.default.Router();
 // routes
 // get all students
-router.get("/", student_controller_1.studentControllers.getAllStudents);
+router.get("/", (0, auth_1.default)(user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.superAdmin), student_controller_1.studentControllers.getAllStudents);
 // get single student
-router.get("/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.faculty, user_constant_1.USER_ROLE.admin), student_controller_1.studentControllers.getAStudent);
+router.get("/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.faculty, user_constant_1.USER_ROLE.admin, user_constant_1.USER_ROLE.superAdmin), student_controller_1.studentControllers.getAStudent);
 // delete single student
-router.delete("/:id", student_controller_1.studentControllers.deleteAStudent);
+router.delete("/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.superAdmin, user_constant_1.USER_ROLE.admin), student_controller_1.studentControllers.deleteAStudent);
 // update single student
-router.patch("/:id", (0, validateRequestData_1.default)(student_validation_zod_1.studentValidations.updateStudentValidationSchema), student_controller_1.studentControllers.updateAStudent);
+router.patch("/:id", (0, auth_1.default)(user_constant_1.USER_ROLE.superAdmin, user_constant_1.USER_ROLE.admin), (0, validateRequestData_1.default)(student_validation_zod_1.studentValidations.updateStudentValidationSchema), student_controller_1.studentControllers.updateAStudent);
 // export all student routes
 exports.studentRoutes = router;

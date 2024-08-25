@@ -116,8 +116,8 @@ const studentSchema = new Schema<TStudent, IStudentModel>(
 );
 
 // implementation of static method
-studentSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
+studentSchema.statics.isUserExists = async function (_id: string) {
+  const existingUser = await Student.findById(_id);
 
   return existingUser;
 };

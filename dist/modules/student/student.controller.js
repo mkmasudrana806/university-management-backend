@@ -20,11 +20,12 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const appError_1 = __importDefault(require("../../utils/appError"));
 // -------------------- get all students --------------------
 const getAllStudents = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield student_service_1.studentServices.getAllStudentsFromDB(req.query);
+    const { metaData, result } = yield student_service_1.studentServices.getAllStudentsFromDB(req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: "Student are retrieved successfully",
+        meta: metaData,
         data: result,
     });
 }));
@@ -44,8 +45,8 @@ const getAStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 }));
 // -------------------- delete a single student --------------------
 const deleteAStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { studentId } = req.params;
-    const result = yield student_service_1.studentServices.deleteAStudentFromDB(studentId);
+    var _b;
+    const result = yield student_service_1.studentServices.deleteAStudentFromDB((_b = req.params) === null || _b === void 0 ? void 0 : _b.id);
     if (!result)
         throw new appError_1.default(http_status_1.default.NOT_FOUND, "user and student is not deleted successfully");
     (0, sendResponse_1.default)(res, {
@@ -57,11 +58,9 @@ const deleteAStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
 }));
 // -------------------- update a single student --------------------
 const updateAStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { studentId } = req.params;
+    var _c;
     const { student } = req.body;
-    const result = yield student_service_1.studentServices.updateAStudentFromDB(studentId, student);
-    if (!result)
-        throw new appError_1.default(http_status_1.default.NOT_FOUND, " student is not found");
+    const result = yield student_service_1.studentServices.updateAStudentFromDB((_c = req.params) === null || _c === void 0 ? void 0 : _c.id, student);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
